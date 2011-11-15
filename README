@@ -1,0 +1,12 @@
+procps-3.0.5 download from procps.sourceforge.net/index.html
+
+The latest version is 3.2.8+, but have some problems compile the 
+latest version in my computer(ubuntu 10.04).
+Download the 3.0.5(had replace <asm/param.h> to <ams/page.h>).
+This version can compile and run in ubuntu 10.04 just like:
+	$make
+	$make install
+	or
+	$make
+	$sudo mv proc/libproc.so.3.0.5 /usr/lib
+	$./top #and something else not install
