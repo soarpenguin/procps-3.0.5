@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -16,6 +17,9 @@
 #define PACKET_SIZE     4096
 #define MAX_WAIT_TIME   5
 #define MAX_NO_PACKETS  3
+#ifndef MAXHOSTNAMELEN 
+#define MAXHOSTNAMELEN 64
+#endif
 
 char sendpacket[PACKET_SIZE]; // store the send package 
 char recvpacket[PACKET_SIZE]; // stroe the recevice package
@@ -27,6 +31,7 @@ struct timeval tvrecv;	// store the time info when a package received
 pid_t pid;				// store the process id of main program
 int options;			// store option from the command line arguments
 char *hostname = NULL;	// store the host name(from the command line)
+char hnamebuf[MAXHOSTNAMELEN];
 char *prgname = NULL;   // store the program name
 
 char usage[] = 
@@ -47,8 +52,8 @@ statistics(int signo)
 	fflush(stdout);
 	printf("\n-----------%s PING statistics-----------\n", hostname);
 	if(nsend > 0)
-		printf("%d packets transmitted, %d received , %d%%  lost\n",
-				nsend,nreceived,(nsend-nreceived)/nsend*100);
+		printf("%d packets transmitted, %d received , %2.0f%%  lost\n",
+				nsend,nreceived,(float)(nsend-nreceived)/nsend*100);
 	else
 		printf("have problem in send packets!\n");
 	
@@ -98,7 +103,7 @@ cal_chksum(unsigned short *addr,int len)
 int 
 pack(int pack_no)
 {       
-	int i, packsize;
+	int packsize;
 	struct icmp *icmp;
 	struct timeval *tval;
 
@@ -124,7 +129,7 @@ pack(int pack_no)
 int 
 unpack(char *buf,int len)
 {       
-	int i, iphdrlen;
+	int iphdrlen;
 	struct ip *ip;
 	struct icmp *icmp;
 	struct timeval *tvsend;
@@ -160,6 +165,8 @@ unpack(char *buf,int len)
 	}
 	else   
 		return -1;
+
+	return 0;
 }
 
 /*
@@ -188,7 +195,7 @@ send_packet()
 void 
 recv_packet()
 {      
-	int n,fromlen;
+	unsigned int n,fromlen;
 	extern int errno;
 
 	signal(SIGALRM, statistics);
@@ -227,7 +234,7 @@ tv_sub(struct timeval *out,struct timeval *in)
 }
 
 /*
- * 处理命令行参数,以为位模式保存与options
+ * 处理命令行参数,以位模式保存与options
  */
 int
 process_command_line_arguments(int *argc, char **argv)
@@ -237,6 +244,8 @@ process_command_line_arguments(int *argc, char **argv)
 
 	(*argc)--, av++;
 	while((*argc > 0) && ('-' == *av[0])) {
+		// for case of command option like '--xxx'
+		// 'xxx' treat as a option in program 
 		if('-' == *(av[0]+1)) {
 			char *temp = av[0];
 			if(!strcmp(temp + 2, "help")) {
@@ -248,9 +257,10 @@ process_command_line_arguments(int *argc, char **argv)
 				exit(1);
 			} 
 		}
+		// for case of '-a' or '-ax', 
+		// every letter treat as a option 
 		while(*++av[0]) switch(*av[0]) {
 				case 'h':
-				//	printf("usage:%s [-hdr] [(hostname/IP address) [count]]\n", prgname);
 					printf(usage, prgname);
 					exit(0);
 				case 'd':
@@ -283,7 +293,7 @@ main(int argc,char *argv[])
 	struct hostent *host;
 	struct protoent *protocol;
 	unsigned long inaddr=0l;
-	int waittime = MAX_WAIT_TIME;    //#define MAX_WAIT_TIME   5
+	//int waittime = MAX_WAIT_TIME;    //#define MAX_WAIT_TIME   5
 	int size = 50 * 1024;
 	int cmd_line_opts_start = 1;
 	unsigned int pgcount = 0;
@@ -298,19 +308,15 @@ main(int argc,char *argv[])
 	cmd_line_opts_start = process_command_line_arguments(&argc, argv);
 
 	if(argc < 1 || argc > 2) {       
-		//printf("usage:%s [-hdr] [(hostname/IP address) [count]]\n", prgname);
 		printf(usage, prgname);
 		exit(1);
 	}
 	
 	if(1 == argc) {
 		hostname = argv[cmd_line_opts_start];
-		//printf("%s\n", hostname);
 	} else {
 		hostname = argv[cmd_line_opts_start];
 		pgcount = (unsigned int)strtol(argv[++cmd_line_opts_start], NULL, 10);
-		//printf("%s\n", hostname);
-		//printf("%u\n", pgcount);
 	}
 
 	//getprotobyname("icmp")返回对应于给定协议名的包含名字和协议号的protoent结构指针。
@@ -353,17 +359,29 @@ main(int argc,char *argv[])
 	bzero(&dest_addr, sizeof(dest_addr));
 	dest_addr.sin_family = AF_INET;
 
-	/*判断是主机名还是ip地址*/
-	if( inaddr = inet_addr(hostname) == INADDR_NONE) {
+	/*
+	 * 判断是主机名还是ip地址
+	 * inet_addr:
+	 *	Convert Internet host address from num-and-dots(172.0.0.1)
+	 *	into binary data in network byte order
+	 */
+	if((inaddr = inet_addr(hostname)) == INADDR_NONE) {
 		/*是主机名*/
-		if((host = gethostbyname(hostname) ) == NULL) {       
+		if((host = gethostbyname(hostname)) == NULL) {       
 			perror("gethostbyname error");
 			exit(1);
 		}
 		memcpy((char *)&dest_addr.sin_addr, host->h_addr, host->h_length);
-	}
-	else    /*是ip地址*/
+		strncpy(hnamebuf, host->h_name, MAXHOSTNAMELEN-1);
+		hostname = hnamebuf;
+	} else {    
+		/*是ip地址*/
+		//struct in_addr ipv4addr;
+		//host = gethostbyaddr(&ipv4addr, sizeof(ipv4addr), AF_INET);
+		//hostname = host->h_name;
+		//strncpy(hnamebuf, hostname, MAXHOSTNAMELEN-1);	
 		dest_addr.sin_addr.s_addr = inet_addr(hostname);
+	}
 
 	/*
 	 * 获取main的进程id,用于设置ICMP的标志符
