@@ -150,7 +150,7 @@ unpack(char *buf,int len)
 	}
 
 	/*
-	 * 确保所接收的是我所发的的ICMP的回应
+	 * 确保所接收的是先前所发的的ICMP数据包的回应
 	 */
 	if( (icmp->icmp_type == ICMP_ECHOREPLY) && (icmp->icmp_id == pid) ) {       
 		tvsend = (struct timeval *)icmp->icmp_data;
@@ -164,29 +164,28 @@ unpack(char *buf,int len)
 		return -1;
 }
 
-/*发送三个ICMP报文*/
+/*
+ *发送ICMP报文
+ */
 void 
 send_packet()
 {       
 	int packetsize;
-    //while( nsend < MAX_NO_PACKETS) //发送MAX_NO_PACKETS个ICMP报文
-	//{       
+       
 	nsend++;
 	packetsize = pack(nsend); /*设置ICMP报头*/
+	
 	//sendpacket为要发送的内容，由pack()函数设定，dest_addr是目的地址，
-
 	if( sendto(sockfd, sendpacket, packetsize, 0,
 			  (struct sockaddr *)&dest_addr, sizeof(dest_addr) ) < 0  ) {
 		perror("sendto error");
 		nsend--;
-		//	continue;
 	}
 	sleep(1); /*每隔一秒发送一个ICMP报文*/
-	//}
 }
 
 /*
- * 接收所有ICMP报文
+ * 接收ICMP报文
  */
 void 
 recv_packet()
@@ -217,7 +216,7 @@ recv_packet()
 }
 
 /*
- * 两个timeval结构相减
+ * 通过两个timeval结构相减计算时间差
  */
 void 
 tv_sub(struct timeval *out,struct timeval *in)
@@ -229,6 +228,9 @@ tv_sub(struct timeval *out,struct timeval *in)
 	out->tv_sec -= in->tv_sec;
 }
 
+/*
+ * 处理命令行参数,以为位模式保存与options
+ */
 int
 process_command_line_arguments(int *argc, char **argv)
 {
