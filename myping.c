@@ -17,22 +17,20 @@
 #define MAX_WAIT_TIME   5
 #define MAX_NO_PACKETS  3
 
-#if defined(DEBUG)
-
-#else
-
-#endif
-
-char sendpacket[PACKET_SIZE];
-char recvpacket[PACKET_SIZE];
+char sendpacket[PACKET_SIZE]; // store the send package 
+char recvpacket[PACKET_SIZE]; // stroe the recevice package
 int sockfd, datalen = 56;
 int nsend = 0, nreceived = 0;
-struct sockaddr_in dest_addr;
-struct sockaddr_in from;
-struct timeval tvrecv;
-pid_t pid;
-int options;
-char *hostname = NULL;
+struct sockaddr_in dest_addr; // store the destination address info
+struct sockaddr_in from;// store the localhost address info
+struct timeval tvrecv;	// store the time info when a package received
+pid_t pid;				// store the process id of main program
+int options;			// store option from the command line arguments
+char *hostname = NULL;	// store the host name(from the command line)
+char *prgname = NULL;   // store the program name
+
+char usage[] = 
+"usage:%s [-hdr] [--help] [(hostname/IP address) [count]]\n";
 
 void statistics(int signo);
 unsigned short cal_chksum(unsigned short *addr, int len);
@@ -239,7 +237,22 @@ process_command_line_arguments(int *argc, char **argv)
 
 	(*argc)--, av++;
 	while((*argc > 0) && ('-' == *av[0])) {
+		if('-' == *(av[0]+1)) {
+			char *temp = av[0];
+			if(!strcmp(temp + 2, "help")) {
+				printf(usage, prgname);
+				exit(0);
+			} else {
+				printf("Bad arguments in command line!\n");
+				printf(usage, prgname);
+				exit(1);
+			} 
+		}
 		while(*++av[0]) switch(*av[0]) {
+				case 'h':
+				//	printf("usage:%s [-hdr] [(hostname/IP address) [count]]\n", prgname);
+					printf(usage, prgname);
+					exit(0);
 				case 'd':
 					options |= SO_DEBUG;
 					//printf("%c\n", *av[0]);
@@ -271,7 +284,6 @@ main(int argc,char *argv[])
 	struct protoent *protocol;
 	unsigned long inaddr=0l;
 	int waittime = MAX_WAIT_TIME;    //#define MAX_WAIT_TIME   5
-	char *prgname = NULL;
 	int size = 50 * 1024;
 	int cmd_line_opts_start = 1;
 	unsigned int pgcount = 0;
@@ -286,7 +298,8 @@ main(int argc,char *argv[])
 	cmd_line_opts_start = process_command_line_arguments(&argc, argv);
 
 	if(argc < 1 || argc > 2) {       
-		printf("usage:%s -dr (hostname/IP address) count\n", prgname);
+		//printf("usage:%s [-hdr] [(hostname/IP address) [count]]\n", prgname);
+		printf(usage, prgname);
 		exit(1);
 	}
 	
