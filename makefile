@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g -Wall
 
-all: myping
+all: myping ping
 ############ prog.c --> prog.o
 
 %.o : %.c
@@ -10,5 +10,8 @@ all: myping
 ############ prog.o --> prog
 
 myping:   % : %.o 
+	$(CC) $(LDFLAGS) -o $@ $^
+
+ping:   % : %.o 
 	$(CC) $(LDFLAGS) -o $@ $^
 
