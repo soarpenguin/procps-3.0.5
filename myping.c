@@ -35,7 +35,7 @@ char hnamebuf[MAXHOSTNAMELEN];
 char *prgname = NULL;   // store the program name
 
 char usage[] = 
-"usage:%s [-hdr] [--help] [(hostname/IP address) [count]]\n";
+"usage:%s [-h?dr] [--help] [(hostname/IP address) [count]]\n";
 
 void statistics(int signo);
 unsigned short cal_chksum(unsigned short *addr, int len);
@@ -261,6 +261,7 @@ process_command_line_arguments(int *argc, char **argv)
 		// every letter treat as a option 
 		while(*++av[0]) switch(*av[0]) {
 				case 'h':
+				case '?':
 					printf(usage, prgname);
 					exit(0);
 				case 'd':
