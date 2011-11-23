@@ -31,6 +31,7 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -47,7 +48,7 @@
 #define MAXHOSTNAMELEN	64
 #endif
 
-u_char	packet[MAXPACKET];
+char packet[MAXPACKET];
 int	i, pingflags, options;
 extern	int errno;
 
@@ -107,6 +108,8 @@ catcher()
 		signal(SIGALRM, finish);
 		alarm(waittime);
 	}
+
+	return 0;
 }
 
 /*
@@ -184,7 +187,7 @@ pinger()
 		*datap++ = i;
 
 	/* Compute ICMP checksum here */
-	icp->icmp_cksum = in_cksum( icp, cc );
+	icp->icmp_cksum = in_cksum((unsigned short *)icp, cc );
 
 	/* cc = sendto(s, msg, len, flags, to, tolen) */
 	i = sendto( s, outpack, cc, 0, &whereto, sizeof(struct sockaddr) );
@@ -236,6 +239,23 @@ pr_type(int t)
 }
 
 /*
+ * 			T V S U B
+ * 
+ * Subtract 2 timeval structs:  out = out - in.
+ * 
+ * Out is assumed to be >= in.
+ */
+void
+tvsub(struct timeval *out, struct timeval *in)
+{
+	if( (out->tv_usec -= in->tv_usec) < 0 )   {
+		out->tv_sec--;
+		out->tv_usec += 1000000;
+	}
+	out->tv_sec -= in->tv_sec;
+}
+
+/*
  *			P R _ P A C K
  *
  * Print out the packet, if it came from us.  This logic is necessary
@@ -273,7 +293,7 @@ pr_pack(char* buf, int cc, struct sockaddr_in *from )
 		  icp->icmp_type, pr_type(icp->icmp_type), icp->icmp_code);/*DFM*/
 		if (pingflags & VERBOSE) {
 			for( i=0; i<12; i++)
-				printf("x%2.2x: x%8.8l\n", i*sizeof(long),
+				printf("x%2d: x%8.8l\n", i*sizeof(long),
 				  *lp++);
 		}
 		return;
@@ -311,23 +331,6 @@ pr_pack(char* buf, int cc, struct sockaddr_in *from )
 
 
 /*
- * 			T V S U B
- * 
- * Subtract 2 timeval structs:  out = out - in.
- * 
- * Out is assumed to be >= in.
- */
-void
-tvsub(struct timeval *out, struct timeval *in)
-{
-	if( (out->tv_usec -= in->tv_usec) < 0 )   {
-		out->tv_sec--;
-		out->tv_usec += 1000000;
-	}
-	out->tv_sec -= in->tv_sec;
-}
-
-/*
  *			F I N I S H
  *
  * Print out statistics, and give up.
@@ -344,13 +347,14 @@ finish()
 	printf("\n----%s PING Statistics----\n", hostname );
 	printf("%d packets transmitted, ", ntransmitted );
 	printf("%d packets received, ", nreceived );
-	if (ntransmitted)
+	if (ntransmitted) {
 		if( nreceived > ntransmitted)
 			printf("-- somebody's printing up packets!");
 		else
 			printf("%d%% packet loss", 
 			  (int) (((ntransmitted-nreceived)*100) /
 			  ntransmitted));
+	}
 	printf("\n");
 	if (nreceived && timing)
 	    printf("round-trip (ms)  min/avg/max = %d/%d/%d\n",
