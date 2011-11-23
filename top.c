@@ -1024,7 +1024,7 @@ static void parse_args (char **args)
       .  bunched args are actually handled properly and none are ignored
       .  we tolerate NO whitespace and NO switches -- maybe too tolerant? */
    static const char usage[] =
-      " -hv | -bcisS -d delay -n iterations -p pid [,pid ...]";
+      " -h?v | -bcisS -d delay -n iterations -p pid [,pid ...]";
    float tmp_delay = MAXFLOAT;
    char *p;
 
@@ -1050,6 +1050,7 @@ static void parse_args (char **args)
                if (1 != sscanf(cp, "%f", &tmp_delay))
                   std_err(fmtmk("bad delay '%s'", cp));
                break;
+            case '?':
             case 'h': case 'H':
             case 'v': case 'V':
                std_err(fmtmk("%s\nusage:\t%s%s"
@@ -1107,6 +1108,55 @@ static void parse_args (char **args)
       else
          Delay_time = tmp_delay;
    }
+}
+
+
+        /*
+         * Process command line arguments.
+         * Note: it's assumed that the rc file(s) have already been read
+         *       and our job is to see if any of those options are to be
+         *       overridden  */
+int
+process_command_line_arguments(int *argc, char **argv)
+{
+   char **av = argv;
+	int count = *argc;
+
+	(*argc)--, av++;
+	while((*argc > 0) && ('-' == *av[0])) {
+		// for case of command option like '--xxx'
+		// 'xxx' treat as a option in program 
+		if('-' == *(av[0]+1)) {
+			char *temp = av[0];
+			if(!strcmp(temp + 2, "help")) {
+				exit(0);
+			} else if(!strcmp(temp + 2, "version")) {
+   		   
+			} else {
+				printf("Bad arguments in command line!\n");
+				exit(1);
+			} 
+		}
+		// for case of '-a' or '-ax', 
+		// every letter treat as a option 
+		while(*++av[0]) switch(*av[0]) {
+				case 'h':
+				case '?':
+					exit(0);
+				case 'd':
+					//printf("%c\n", *av[0]);
+					break;
+				case 'r':
+					//printf("%c\n", *av[0]);
+					break;
+				default:
+					fprintf(stderr, "Bad arguments in command line. \n");
+					exit(1);
+		}
+		(*argc)--, av++;
+	}
+
+	return (count - *argc);
 }
 
 
