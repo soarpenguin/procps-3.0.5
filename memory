@@ -1,0 +1,80 @@
+top - 13:35:25 up  1:21,  3 users,  load average: 0.45, 0.44, 0.49
+Tasks: 164 total,   1 running, 162 sleeping,   0 stopped,   1 zombie
+Cpu(s):   3.5% user,   1.5% system,   0.0% nice,  95.0% idle,   0.0% IO-wait
+Mem:   1025204k total,   979952k used,    45252k free,   193792k buffers
+Swap:  1931256k total,    11548k used,  1919708k free,   264440k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  Command                                                                                         
+ 2917 yfzhu     20   0 68392  23m 1864 R  3.6  2.3   0:03.21 ./top                                                                                           
+ 1086 root      20   0 70004  56m  17m S  2.0  5.6   8:33.05 /usr/bin/X :0 -nr -verbose -auth /var/run/gdm/auth-for-gdm-4qK4x0/database -nolisten tcp vt7    
+ 1709 yfzhu     20   0  556m 177m  35m S  2.0 17.7   8:45.71 /usr/lib/firefox-8.0/firefox                                                                    
+ 1810 yfzhu     20   0  269m  45m  20m S  2.0  4.6   9:44.41 /usr/lib/firefox-8.0/plugin-container /usr/lib/flashplugin-installer/libflashplayer.so -greomni 
+ 1535 yfzhu     20   0 59640  46m  15m S  0.6  4.6   2:25.13 /usr/bin/compiz --sm-client-id 10227a7b53a817c4a8130076913735781100000013720028                 
+   25 root      20   0     0    0    0 S  0.2  0.0   0:00.60 ( ata/0 )                                                                                       
+ 1528 yfzhu     20   0 89192 9436 7164 S  0.2  0.9   0:02.43 /usr/lib/gnome-settings-daemon/gnome-settings-daemon                                            
+ 1607 yfzhu     20   0 59464  15m  11m S  0.2  1.6   0:07.51 /usr/lib/gnome-panel/clock-applet --oaf-activate-iid=OAFIID:GNOME_ClockApplet_Factory --oaf-ior 
+ 1963 yfzhu     20   0 42468  14m  10m S  0.2  1.4   0:27.27 gnome-terminal                                                                                  
+    1 root      20   0  2796 1680 1228 S  0.0  0.2   0:00.43 /sbin/init                                                                                      
+    2 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( kthreadd )                                                                                    
+    3 root     -99   0     0    0    0 S  0.0  0.0   0:00.00 ( migration/0 )                                                                                 
+    4 root      20   0     0    0    0 S  0.0  0.0   0:00.03 ( ksoftirqd/0 )                                                                                 
+    5 root     -99   0     0    0    0 S  0.0  0.0   0:00.00 ( watchdog/0 )                                                                                  
+    6 root     -99   0     0    0    0 S  0.0  0.0   0:00.00 ( migration/1 )                                                                                 
+    7 root      20   0     0    0    0 S  0.0  0.0   0:00.19 ( ksoftirqd/1 )                                                                                 
+    8 root     -99   0     0    0    0 S  0.0  0.0   0:00.00 ( watchdog/1 )                                                                                  
+    9 root      20   0     0    0    0 S  0.0  0.0   0:00.15 ( events/0 )                                                                                    
+   10 root      20   0     0    0    0 S  0.0  0.0   0:00.10 ( events/1 )                                                                                    
+   11 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( cpuset )                                                                                      
+   12 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( khelper )                                                                                     
+   13 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( async/mgr )                                                                                   
+   14 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( pm )                                                                                          
+   16 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( sync_supers )                                                                                 
+   17 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( bdi-default )                                                                                 
+   18 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( kintegrityd/0 )                                                                               
+   19 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( kintegrityd/1 )                                                                               
+   20 root      20   0     0    0    0 S  0.0  0.0   0:00.03 ( kblockd/0 )                                                                                   
+   21 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( kblockd/1 )                                                                                   
+   22 root      20   0     0    0    0 S  0.0  0.0   0:00.18 ( kacpid )                                                                                      
+   23 root      20   0     0    0    0 D  0.0  0.0   0:01.06 ( kacpi_notify )                                                                                
+   24 root      20   0     0    0    0 S  0.0  0.0   0:00.00 ( kacpi_hotplug )                                                                               
+   26 root      20   0     0    0    0 S  0.0  0.0   0:00.58 ( ata/1 )                                                                                       
+==2917== 
+==2917== HEAP SUMMARY:
+==2917==     in use at exit: 100,823 bytes in 303 blocks
+==2917==   total heap usage: 1,489 allocs, 1,186 frees, 612,735 bytes allocated
+==2917== 
+==2917== 160 (40 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 18 of 31
+==2917==    at 0x4024F20: malloc (vg_replace_malloc.c:236)
+==2917==    by 0x4165583: nss_parse_service_list (nsswitch.c:622)
+==2917==    by 0x4165CC6: __nss_database_lookup (nsswitch.c:164)
+==2917==    by 0x45E7EAB: ???
+==2917==    by 0x45E8B6C: ???
+==2917==    by 0x411DFC4: getpwuid_r@@GLIBC_2.1.2 (getXXbyYY_r.c:253)
+==2917==    by 0x411D92E: getpwuid (getXXbyYY.c:117)
+==2917==    by 0x4044220: user_from_uid (pwcache.c:43)
+==2917==    by 0x4044EEC: readproc (readproc.c:370)
+==2917==    by 0x804CEF7: refreshprocs (top.c:884)
+==2917==    by 0x804E046: so_lets_see_em (top.c:2526)
+==2917==    by 0x804E774: main (top.c:2781)
+==2917== 
+==2917== 6,328 bytes in 101 blocks are possibly lost in loss record 30 of 31
+==2917==    at 0x4025016: realloc (vg_replace_malloc.c:525)
+==2917==    by 0x40419F0: xrealloc (alloc.c:42)
+==2917==    by 0x404468F: file2strvec (readproc.c:262)
+==2917==    by 0x4044E0A: readproc (readproc.c:389)
+==2917==    by 0x804CE9C: refreshprocs (top.c:875)
+==2917==    by 0x804DC4E: so_lets_see_em (top.c:2550)
+==2917==    by 0x804E774: main (top.c:2781)
+==2917== 
+==2917== LEAK SUMMARY:
+==2917==    definitely lost: 40 bytes in 1 blocks
+==2917==    indirectly lost: 120 bytes in 10 blocks
+==2917==      possibly lost: 6,328 bytes in 101 blocks
+==2917==    still reachable: 94,335 bytes in 191 blocks
+==2917==         suppressed: 0 bytes in 0 blocks
+==2917== Reachable blocks (those to which a pointer was found) are not shown.
+==2917== To see them, rerun with: --leak-check=full --show-reachable=yes
+==2917== 
+==2917== For counts of detected and suppressed errors, rerun with: -v
+==2917== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 26 from 9)
+
