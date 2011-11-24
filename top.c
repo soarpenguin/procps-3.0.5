@@ -1119,41 +1119,101 @@ static void parse_args (char **args)
 int
 process_command_line_arguments(int *argc, char **argv)
 {
-   char **av = argv;
+	char **av = argv;
 	int count = *argc;
+	float tmp_delay = MAXFLOAT;
+	char *p;
+	static const char usage[] =
+      " -h?v | -bcisS -d delay -n iterations -p pid [,pid ...]";
 
 	(*argc)--, av++;
 	while((*argc > 0) && ('-' == *av[0])) {
 		// for case of command option like '--xxx'
 		// 'xxx' treat as a option in program 
 		if('-' == *(av[0]+1)) {
-			char *temp = av[0];
-			if(!strcmp(temp + 2, "help")) {
-				exit(0);
-			} else if(!strcmp(temp + 2, "version")) {
-   		   
-			} else {
-				printf("Bad arguments in command line!\n");
-				exit(1);
+			p = av[0];
+			if((!strcmp(p + 2, "help")) || (!strcmp(p + 2, "version"))) {
+			   std_err(fmtmk("%s\nusage:\t%s%s"
+				  , procps_version, Myname, usage));
+			} //else if(!strcmp(p + 2, "version")) {
+			//}
+			 else {
+               std_err(fmtmk("unknown argument '%s'\nusage:\t%s%s"
+                  , p + 2, Myname, usage));
 			} 
 		}
 		// for case of '-a' or '-ax', 
 		// every letter treat as a option 
 		while(*++av[0]) switch(*av[0]) {
-				case 'h':
-				case '?':
-					exit(0);
-				case 'd':
-					//printf("%c\n", *av[0]);
-					break;
-				case 'r':
-					//printf("%c\n", *av[0]);
-					break;
-				default:
-					fprintf(stderr, "Bad arguments in command line. \n");
-					exit(1);
+			case 'b':
+				Batch = 1;
+				break;
+			case 'c':
+				TOGw(Curwin, Show_CMDLIN);
+				break;
+			case 'd':
+				if(*(av[0]+1)) av[0]++;
+				else if(av[1]) { 
+					av++; (*argc)--;
+				} else
+					std_err("-d requires argument");
+				if(1 != sscanf(av[0], "%f", &tmp_delay))
+					std_err(fmtmk("bad delay '%s'", av[0]));
+				break;
+			case '?':
+			case 'h': case 'H':
+			case 'v': case 'V':
+			   std_err(fmtmk("%s\nusage:\t%s%s"
+				  , procps_version, Myname, usage));
+			case 'i':
+				TOGw(Curwin, Show_IDLEPS);
+				Curwin->maxtasks = 0;
+				break;
+			case 'n':
+				if (*(av[0]+1)) av[0]++;
+				else if (av[1]) {
+					av++; (*argc)--;
+				} else std_err("-n requires argument");
+				if(1 != sscanf(av[0], "%d", &Loops) || 1 > Loops)
+					std_err(fmtmk("bad iteration arg '%s'", av[0]));
+				break;
+			case 'p':
+				do {
+					if (*(av[0]+1)) av[0]++;
+					else if (av[1]) {
+						av++; (*argc)--;
+					} else std_err("-p argument missing");
+					if(Monpidsidx >= MONPIDMAX)
+						std_err(fmtmk("pid limit (%d) exceeded", MONPIDMAX));
+					if (1 != sscanf(av[0], "%d", &Monpids[Monpidsidx])
+					|| 0 > Monpids[Monpidsidx])
+						std_err(fmtmk("bad pid '%s'", av[0]));
+					if(!Monpids[Monpidsidx])
+						Monpids[Monpidsidx] = getpid();
+					Monpidsidx++;
+					if(!(p = strchr(av[0], ',')))
+						break;
+					av[0] = p;
+				} while (*av[0]);
+				break;
+			case 's':
+				Secure_mode = 1;
+				break;
+			case 'S':
+				TOGw(Curwin, Show_CTIMES);
+				break;
+			default:
+               std_err(fmtmk("unknown argument '%c'\nusage:\t%s%s"
+                  , *av[0], Myname, usage));
 		}
 		(*argc)--, av++;
+	}
+
+	if(MAXFLOAT != tmp_delay) {
+		if(Secure_mode || 0 > tmp_delay)
+			msg_save("Delay time Not changed");
+		else
+			Delay_time = tmp_delay;
 	}
 
 	return (count - *argc);
@@ -2681,7 +2741,7 @@ static void so_lets_see_em (void)
          */
 int main (int dont_care_argc, char **argv)
 {
-   (void)dont_care_argc;
+   //(void)dont_care_argc;
    before(*argv);
   /*
    Ok, she's gone now.  Don't you mind her, she means well but yes, she is
@@ -2696,7 +2756,8 @@ int main (int dont_care_argc, char **argv)
                                                            +-------------+ */
    windows_stage1();                                    /* top (sic) slice */
    configs_read();                                      /* > spread etc, < */
-   parse_args(&argv[1]);                                /* > lean stuff, < */
+   //parse_args(&argv[1]);                              /* > lean stuff, < */
+   process_command_line_arguments(&dont_care_argc, argv);
    whack_terminal();                                    /* > onions etc. < */
    windows_stage2();                                    /* as bottom slice */
   /*                                                       +-------------+ */
