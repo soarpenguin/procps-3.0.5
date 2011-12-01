@@ -79,7 +79,7 @@ CFLAGS := -D_GNU_SOURCE -O2 -g3 -fno-common -ffast-math -I proc \
 .SUFFIXES:
 .SUFFIXES: .a .o .c .s .h
 
-.PHONY: all clean do_all install tar  # ps
+.PHONY: all clean do_all # install tar  # ps
 
 ALL := $(notdir $(BINFILES))
 
@@ -154,6 +154,9 @@ top:   % : %.o $(LIBPROC)
 
 watch: % : %.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(CURSES)
+
+ping myping : % : %.o
+	$(CC) $(LDFLAGS) -o $@ $^
 
 ############ progX --> progY
 
