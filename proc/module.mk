@@ -36,6 +36,8 @@ DIRS  += proc/
 #proc/lib$(NAME).a: $(LIBOBJ)
 #	$(AR) rcs $@ $^
 
+# -share -fPIC -soname arguments for produce dynamic link lib
+# -soname is a argument for 'ld' linker
 proc/$(SONAME): $(LIBOBJ)
 	$(CC) -shared -Wl,-soname,$(SONAME) -o $@ $^ -lc
 	cd proc && $(ln_sf) $(SONAME) lib$(NAME).so
