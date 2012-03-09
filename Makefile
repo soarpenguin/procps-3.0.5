@@ -92,7 +92,9 @@ INSTALL := $(BINFILES) $(MANFILES)
 # want this rule first, use := on ALL, and ALL not filled in yet
 all: do_all
 
--include */module.mk
+# also have some problem in module 'ps'
+#-include */module.mk
+-include proc/module.mk
 
 do_all:    $(ALL)
 
