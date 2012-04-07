@@ -42,7 +42,8 @@ static int meminfo_fd = -1;
 #define VMINFO_FILE "/proc/vmstat"
 static int vminfo_fd = -1;
 
-static char buf[1024];
+#define BUFSIZE 2048
+static char buf[BUFSIZE];
 
 /* This macro opens filename only if necessary and seeks to 0 so
  * that successive calls to the functions are more efficient.
