@@ -10,3 +10,11 @@ This version can compile and run in ubuntu 10.04 just like:
 	$make
 	$sudo mv proc/libproc.so.3.0.5 /usr/lib
 	$./top #and something else not install
+
+solve the problem to run just like (./ping) etc program need to 
+use (sudo or su) to root.
+	In the path of the program exist, use the command like:
+	$chown root ping
+	$chmod u+s ping
+	(XXX: may be have security problem when the program is 
+		a virus or have some malicious code)
